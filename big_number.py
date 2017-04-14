@@ -1,16 +1,18 @@
 from copy import copy
+from array import array
 
 from utils import array_to_number, number_to_array
 
-BASE = 10
+BASE = 2
 
 
 class BigNumber(object):
 
     def __init__(self, number, sign=1):
-        if not isinstance(number, (list, tuple)):
+        if not isinstance(number, (list, tuple, array)):
             number = number_to_array(number)
         self.numbers = copy(number)
+        # self.numbers = array('i', number)
         self.sign = sign
 
     def add_zeros(self, amount):
@@ -111,10 +113,24 @@ def subtraction(u, v):
     return BigNumber(w, - u.sign if new_sign else u.sign)
 
 
+def classic_multiply(u, v):
+    u = BigNumber(list(reversed(u.numbers)), u.sign)
+    v = BigNumber(list(reversed(v.numbers)), v.sign)
+    product = [0] * (len(u) + len(v))
+    for b_i in range(len(v)):
+        carry = 0
+        for a_i in range(len(v)):
+            product[a_i + b_i] += carry + u[a_i] * v[b_i]
+            carry = product[a_i + b_i] // BASE
+            product[a_i + b_i] %= BASE
+        product[b_i + len(u)] += carry
+    return BigNumber(list(reversed(product)), u.sign * v.sign)
+
+
 def karatsuba(x, y):
     prepare(x, y)
     n = max(len(x), len(y))
-    if n < 4:
+    if n < 100:
         return BigNumber(
             number_to_array(
                 array_to_number(x.numbers) * array_to_number(y.numbers)
@@ -126,4 +142,4 @@ def karatsuba(x, y):
     ac = karatsuba(a, c)
     bd = karatsuba(b, d)
     p = karatsuba(a + b, c + d) - ac - bd
-    return ac.multiply_by_ten((n_2)*2) + p.multiply_by_ten(n_2) + bd
+    return ac.multiply_by_ten(n_2 * 2) + p.multiply_by_ten(n_2) + bd
