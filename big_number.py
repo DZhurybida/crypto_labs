@@ -3,7 +3,7 @@ from array import array
 
 from utils import array_to_number, number_to_array
 
-BASE = 2
+BASE = 10
 
 
 class BigNumber(object):
@@ -12,7 +12,6 @@ class BigNumber(object):
         if not isinstance(number, (list, tuple, array)):
             number = number_to_array(number)
         self.numbers = copy(number)
-        # self.numbers = array('i', number)
         self.sign = sign
 
     def add_zeros(self, amount):
@@ -23,6 +22,17 @@ class BigNumber(object):
         for i in range(times):
             self.numbers.append(0)
         return self
+
+    def truncate_zeros(self):
+        counter = 0
+        for i in range(len(self)):
+            if self[i] == 0:
+                counter += 1
+            else:
+                break
+        else:
+            return BigNumber(self[:-counter])
+        return BigNumber(self.numbers)
 
     def __add__(self, other):
         prepare(self, other)
@@ -44,7 +54,11 @@ class BigNumber(object):
         else:
             return subtraction(self, other)
 
+    def __isub__(self, other):
+        return self - other
+
     def __ge__(self, other):
+        prepare(self, other)
         for i in range(len(self)):
             if self[i] > other[i]:
                 return True
@@ -72,6 +86,16 @@ class BigNumber(object):
     def __mul__(self, other):
         prepare(self, other)
         return BigNumber(karatsuba(self, other).numbers, self.sign * other.sign)
+
+    def __truediv__(self, other):
+        # prepare(self, other)
+        q, r = division(self, other)
+        return q
+
+    def __divmod__(self, other):
+        # prepare(self, other)
+        q, r = division(self, other)
+        return r
 
 
 def prepare(u, v):
@@ -143,3 +167,25 @@ def karatsuba(x, y):
     bd = karatsuba(b, d)
     p = karatsuba(a + b, c + d) - ac - bd
     return ac.multiply_by_ten(n_2 * 2) + p.multiply_by_ten(n_2) + bd
+
+
+def division(n, d):
+    n = n.truncate_zeros()
+    d = d.truncate_zeros()
+    if d.sign < 0:
+        q, r = division(n, BigNumber(d.numbers, -1 * d.sign))
+        return q * -1, r
+    if n.sign < 0:
+        q, r = division(n, -1 * n)
+        if r < 0:
+            return -1 * q, r
+        else:
+            q = BigNumber(q.numbers, q.sign * -1) - BigNumber(1)
+            r = d - r
+            return q, r
+    q = BigNumber(0)
+    r = n
+    while r > d:
+        q = q + BigNumber(1)
+        r = r - d
+    return q, r
