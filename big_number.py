@@ -94,11 +94,6 @@ class BigNumber(object):
             return False
         return all([number != 0 for number in self.numbers])
 
-    def __eq__(self, other):
-        if len(self.numbers) != len(other.numbers):
-            return False
-        return self.numbers == other.numbers
-
 ONE = BigNumber(1)
 TWO = BigNumber(2)
 ZERO = BigNumber(0)

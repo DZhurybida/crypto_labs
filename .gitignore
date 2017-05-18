@@ -98,3 +98,4 @@ ENV/
 .idea/vcs.xml
 bitarray_usage.py
 !/bitarray_usage.py
+__pycache__/
