@@ -8,11 +8,10 @@ BASE = 10
 
 class BigNumber(object):
 
-    def __init__(self, number, sign=1):
+    def __init__(self, number):
         if not isinstance(number, (list, tuple, array)):
             number = number_to_array(number)
         self.numbers = copy(number)
-        self.sign = sign
 
     def add_zeros(self, amount):
         for i in range(amount):
@@ -36,23 +35,14 @@ class BigNumber(object):
 
     def __add__(self, other):
         prepare(self, other)
-        if self.sign == other.sign:
-            return addition(self, other)
-        else:
-            if self.sign > 0:
-                positive = self
-                negative = other
-            else:
-                positive = other
-                negative = self
-            return subtraction(positive, negative)
+        return addition(self, other)
+
+    def __iadd__(self, other):
+        return self + other
 
     def __sub__(self, other):
         prepare(self, other)
-        if self.sign != other.sign:
-            return addition(self, other)
-        else:
-            return subtraction(self, other)
+        return subtraction(self, other)
 
     def __isub__(self, other):
         return self - other
@@ -74,28 +64,44 @@ class BigNumber(object):
 
     def __str__(self):
         number = array_to_number(self.numbers)
-        return str(number * self.sign)
+        return str(number)
 
     def __len__(self):
         return len(self.numbers)
 
-    def __neg__(self):
-        self.sign *= -1
-        return BigNumber(self.numbers, self.sign * -1)
-
     def __mul__(self, other):
         prepare(self, other)
-        return BigNumber(karatsuba(self, other).numbers, self.sign * other.sign)
+        return BigNumber(karatsuba(self, other).numbers)
 
     def __truediv__(self, other):
         # prepare(self, other)
         q, r = division(self, other)
         return q
 
-    def __divmod__(self, other):
+    def __mod__(self, other):
         # prepare(self, other)
         q, r = division(self, other)
         return r
+
+    def __imod__(self, other):
+        return self % other
+
+    def __int__(self):
+        return array_to_number(self.numbers)
+
+    def __bool__(self):
+        if not self.numbers:
+            return False
+        return all([number != 0 for number in self.numbers])
+
+    def __eq__(self, other):
+        if len(self.numbers) != len(other.numbers):
+            return False
+        return self.numbers == other.numbers
+
+ONE = BigNumber(1)
+TWO = BigNumber(2)
+ZERO = BigNumber(0)
 
 
 def prepare(u, v):
@@ -119,13 +125,10 @@ def addition(u, v):
         j -= 1
     if k > 0:
         w.insert(0, k)
-    return BigNumber(w, u.sign)
+    return BigNumber(w)
 
 
 def subtraction(u, v):
-    new_sign = u < v
-    if new_sign:
-        u, v = v, u
     number_length = len(u)
     j = number_length - 1
     k = 0
@@ -134,12 +137,12 @@ def subtraction(u, v):
         w[j] = (u[j] - v[j] + k) % BASE
         k = (u[j] - v[j] + k) // BASE
         j -= 1
-    return BigNumber(w, - u.sign if new_sign else u.sign)
+    return BigNumber(w)
 
 
 def classic_multiply(u, v):
-    u = BigNumber(list(reversed(u.numbers)), u.sign)
-    v = BigNumber(list(reversed(v.numbers)), v.sign)
+    u = BigNumber(list(reversed(u.numbers)))
+    v = BigNumber(list(reversed(v.numbers)))
     product = [0] * (len(u) + len(v))
     for b_i in range(len(v)):
         carry = 0
@@ -148,7 +151,7 @@ def classic_multiply(u, v):
             carry = product[a_i + b_i] // BASE
             product[a_i + b_i] %= BASE
         product[b_i + len(u)] += carry
-    return BigNumber(list(reversed(product)), u.sign * v.sign)
+    return BigNumber(list(reversed(product)))
 
 
 def karatsuba(x, y):
@@ -172,20 +175,9 @@ def karatsuba(x, y):
 def division(n, d):
     n = n.truncate_zeros()
     d = d.truncate_zeros()
-    if d.sign < 0:
-        q, r = division(n, BigNumber(d.numbers, -1 * d.sign))
-        return q * -1, r
-    if n.sign < 0:
-        q, r = division(n, -1 * n)
-        if r < 0:
-            return -1 * q, r
-        else:
-            q = BigNumber(q.numbers, q.sign * -1) - BigNumber(1)
-            r = d - r
-            return q, r
-    q = BigNumber(0)
+    q = ZERO
     r = n
     while r > d:
-        q = q + BigNumber(1)
-        r = r - d
+        q += ONE
+        r -= d
     return q, r
