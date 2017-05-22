@@ -94,6 +94,43 @@ class BigNumber(object):
             return False
         return all([number != 0 for number in self.numbers])
 
+    def modinv(self, n):
+        t, nt = ZERO, ONE
+        r, nr = n, self
+        while nr != ONE:
+            q = r // nr
+            t, nt = nt, t - q * nt
+            r, nr = nr, r - q * nr
+        if r > ONE:
+            return None
+        while t < ZERO:
+            t += n
+        return t
+
+
+def optimal_pow(base, exponent, modulus):
+    if modulus == ONE:
+        return ZERO
+    result = ONE
+    base %= modulus
+    exponent = int(exponent)
+    while exponent > 0:
+        i = "{0:b}".format(exponent)[-1]
+        if i == '1':
+           result = (result * base) % modulus
+        exponent >>= 1
+        base = (base * base) % modulus
+    return result
+
+
+def divide_by_two(number):
+    return BigNumber(int(number) >> 1)
+
+
+def module_by_two(number):
+    return BigNumber(number.numbers[-1] % 2)
+
+
 ONE = BigNumber(1)
 TWO = BigNumber(2)
 ZERO = BigNumber(0)
@@ -172,7 +209,7 @@ def division(n, d):
     d = d.truncate_zeros()
     q = ZERO
     r = n
-    while r > d:
+    while r >= d:
         q += ONE
         r -= d
     return q, r

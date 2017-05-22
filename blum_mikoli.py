@@ -1,31 +1,19 @@
-from big_number import BigNumber, ONE, ZERO, TWO
+import random
 
-p = BigNumber(97)
-g = BigNumber(10)
+from big_number import BigNumber, ONE, TWO, optimal_pow
+
 seed_length = 16
-# seed = BigNumber(int(''.join(map(str, [random.choice([0, 1]) for i in range(seed_length)])), 2))
-seed = BigNumber(28086)
-print('Seed {}'.format(seed))
+p = 97
+g = 10
 
 
 def blum_mikoli_generator(bitslength):
-    global g, p, seed
+    global g, p
+    seed = int(''.join(map(str, [random.choice([0, 1]) for _ in range(seed_length)])), 2)
+    print('Seed {}'.format(seed))
     x = seed % p
     n = ''
     for i in range(bitslength):
-        x = optimal_pow(g, x, p)
-        n += str(int(bool(x < (p - ONE) / TWO)))
+        x = pow(g, x, p)
+        n += str(int(bool(x < (p - 1) / 2)))
     return int(n, 2)
-
-
-def optimal_pow(base, exponent, modulus):
-    if modulus == ONE:
-        return ZERO
-    result = ONE
-    base %= modulus
-    while exponent > ZERO:
-        if exponent % TWO == ONE:
-           result = (result * base) % modulus
-        exponent = exponent / TWO
-        base = (base * base) % modulus
-    return result

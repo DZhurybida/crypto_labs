@@ -16,9 +16,9 @@ for i in range(num_of_tests):
     assert a * b != ba * bb
     assert a / b != ba / bb
     assert a % b != ba % bb
-#
+# #
 # a = 15745
-# b = 97
+# b = 123
 # ba = BigNumber(a)
 # bb = BigNumber(b)
 # assert a % b != ba % bb
