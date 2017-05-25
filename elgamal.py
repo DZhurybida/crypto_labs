@@ -1,12 +1,22 @@
 import math
 import random
 
-
 from maurer_generator import maurer_generator
-from utils import int_from_bytes, modinv, text_to_hash
+from utils import modinv, text_to_hash
 
 key_length = 2048
 
+
+def generator(p):
+    if p == 2:
+        return 1
+    p1 = 2
+    p2 = (p - 1) // p1
+
+    while True:
+        g = random.randint(2, p - 1)
+        if not (pow(g, (p - 1) // p1, p) == 1 or pow(g, (p - 1) // p2, p) == 1):
+            return g
 
 class ElGamal(object):
     public_key = None
@@ -18,7 +28,7 @@ class ElGamal(object):
 
     def generate_keys(self):
         p = maurer_generator(key_length)
-        g = random.randint(1, p - 1)
+        g = generator(p)
         x = random.randint(1, p - 1)
         y = pow(g, x, p)
         self.public_key = (y, g, p)
@@ -44,23 +54,4 @@ class ElGamal(object):
     def check_sign(self, message, a, b):
         m = text_to_hash(message)
         y, g, p = self.public_key
-        # return (y ** a * a ** b) % p == pow(g, m, p)
-        # return (y ** a * a ** b) % p == pow(g, m, p)
-        # return (pow(y, a) * pow(a, b)) % p == pow(g, m, p)
         return (pow(y, a, p) * pow(a, b, p)) % p == pow(g, m, p)
-
-
-def exp_by_squaring_iterative(x, n):
-    if n == 0:
-        return 1
-    y = 1
-    while n > 1:
-        if n % 2 == 0:
-            x = x * x
-            n = n / 2
-        else:
-            y = x * y
-            x = x * x
-            n = (n - 1) / 2
-    print('X: {}, Y: {}'.format(x, y))
-    return x * y
