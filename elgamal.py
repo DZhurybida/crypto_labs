@@ -2,21 +2,12 @@ import math
 import random
 
 from maurer_generator import maurer_generator
-from utils import modinv, text_to_hash
+from millerrabin import millerrabin
+from utils import modinv, text_to_hash, generator
 
-key_length = 2048
+key_length = 512
 
 
-def generator(p):
-    if p == 2:
-        return 1
-    p1 = 2
-    p2 = (p - 1) // p1
-
-    while True:
-        g = random.randint(2, p - 1)
-        if not (pow(g, (p - 1) // p1, p) == 1 or pow(g, (p - 1) // p2, p) == 1):
-            return g
 
 class ElGamal(object):
     public_key = None
