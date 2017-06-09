@@ -1,6 +1,6 @@
 import time
 
-from maurer_generator import maurer_generator
+from lab2.maurer_generator import maurer_generator
 
 nb = 1024
 start = time.clock()

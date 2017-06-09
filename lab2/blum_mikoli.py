@@ -1,7 +1,5 @@
 import random
 
-from big_number import BigNumber, ONE, TWO, optimal_pow
-
 seed_length = 16
 p = 97
 g = 10

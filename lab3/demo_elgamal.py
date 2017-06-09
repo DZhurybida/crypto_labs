@@ -1,4 +1,4 @@
-from elgamal import ElGamal
+from lab3.elgamal import ElGamal
 
 elgamal = ElGamal()
 

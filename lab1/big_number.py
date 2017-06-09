@@ -73,19 +73,6 @@ class BigNumber(object):
         prepare(self, other)
         return BigNumber(karatsuba(self, other).numbers)
 
-    def __truediv__(self, other):
-        # prepare(self, other)
-        q, r = division(self, other)
-        return q
-
-    def __mod__(self, other):
-        # prepare(self, other)
-        q, r = division(self, other)
-        return r
-
-    def __imod__(self, other):
-        return self % other
-
     def __int__(self):
         return array_to_number(self.numbers)
 
@@ -93,19 +80,6 @@ class BigNumber(object):
         if not self.numbers:
             return False
         return all([number != 0 for number in self.numbers])
-
-    def modinv(self, n):
-        t, nt = ZERO, ONE
-        r, nr = n, self
-        while nr != ONE:
-            q = r // nr
-            t, nt = nt, t - q * nt
-            r, nr = nr, r - q * nr
-        if r > ONE:
-            return None
-        while t < ZERO:
-            t += n
-        return t
 
 
 def optimal_pow(base, exponent, modulus):
@@ -202,14 +176,3 @@ def karatsuba(x, y):
     bd = karatsuba(b, d)
     p = karatsuba(a + b, c + d) - ac - bd
     return ac.multiply_by_ten(n_2 * 2) + p.multiply_by_ten(n_2) + bd
-
-
-def division(n, d):
-    n = n.truncate_zeros()
-    d = d.truncate_zeros()
-    q = ZERO
-    r = n
-    while r >= d:
-        q += ONE
-        r -= d
-    return q, r

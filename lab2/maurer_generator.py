@@ -1,8 +1,8 @@
 import math
 import random
 
-from millerrabin import millerrabin
-from prime import checkptab, ptab
+from lab2.millerrabin import millerrabin
+from prime import checkptab
 
 
 def maurer_generator(k):

@@ -1,8 +1,8 @@
-import random
 import math
+import random
 
-from maurer_generator import maurer_generator
-from millerrabin import millerrabin
+from lab2.maurer_generator import maurer_generator
+from lab2.millerrabin import millerrabin
 from utils import modinv, generator
 
 FILEPATH = 'key.txt'

@@ -1,8 +1,7 @@
 import math
 import random
 
-from maurer_generator import maurer_generator
-from millerrabin import millerrabin
+from lab2.maurer_generator import maurer_generator
 from utils import modinv, text_to_hash, generator
 
 key_length = 512

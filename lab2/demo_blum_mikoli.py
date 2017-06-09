@@ -1,7 +1,7 @@
 import time
 
-from blum_mikoli import blum_mikoli_generator
-from millerrabin import millerrabin
+from lab2.blum_mikoli import blum_mikoli_generator
+from lab2.millerrabin import millerrabin
 
 nb = 1024
 while True:
